@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站热门榜单 Top10</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        body {
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+
+        /* 页面标题优化 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: #fb7299;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(251, 114, 153, 0.2);
+        }
+        .page-desc {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* 表格容器：增加卡片阴影、圆角 */
+        .table-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* 表头优化：渐变背景、文字加粗 */
+        th {
+            background: linear-gradient(90deg, #fb7299 0%, #ff8fb0 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            padding: 18px 15px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* 表格行优化：hover效果、隔行变色 */
+        td {
+            border: 1px solid #f0f0f0;
+            padding: 18px 15px;
+            text-align: center;
+            font-size: 15px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        tr:nth-child(even) {
+            background-color: #fafbfc;
+        }
+        tr:hover {
+            background-color: #fff0f5;
+            transform: scale(1.005);
+            box-shadow: 0 2px 8px rgba(251, 114, 153, 0.15);
+        }
+
+        /* 排名列优化：前三名特殊高亮 */
+        .rank {
+            font-size: 26px;
+            font-weight: 700;
+            color: #fb7299;
+            width: 80px;
+        }
+        .rank-top1 {
+            color: #ffd700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+        }
+        .rank-top2 {
+            color: #c0c0c0;
+            text-shadow: 0 0 8px rgba(192, 192, 192, 0.5);
+        }
+        .rank-top3 {
+            color: #cd7f32;
+            text-shadow: 0 0 8px rgba(205, 127, 50, 0.5);
+        }
+
+        /* 封面图优化：hover放大、圆角、阴影 */
+        .cover-img {
+            width: 160px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .cover-img:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 标题列优化：超长文本省略、hover显示 */
+        .title-cell {
+            max-width: 350px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .title-cell:hover {
+            white-space: normal;
+            word-break: break-all;
+        }
+
+        /* 数据列优化：播放量数字高亮 */
+        .play-count {
+            font-weight: 600;
+            color: #fb7299;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 24px;
+            background-color: #fb7299;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(251, 114, 153, 0.3);
+        }
+        .back-btn:hover {
+            background-color: #ff8fb0;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(251, 114, 153, 0.4);
+        }
+        .btn-container {
+            text-align: center;
+        }
+
+        /* 响应式适配：手机端自动适配 */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 10px;
+            }
+            h1 {
+                font-size: 28px;
+            }
+            th, td {
+                padding: 12px 8px;
+                font-size: 13px;
+            }
+            .cover-img {
+                width: 100px;
+                height: 56px;
+            }
+            .title-cell {
+                max-width: 150px;
+            }
+            .rank {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 页面标题区域 -->
+    <div class="page-header">
+        <h1>B站热门榜单 Top10</h1>
+        <p class="page-desc">实时热门视频排行榜 · 共10条数据</p>
+    </div>
+
+    <!-- 表格容器 -->
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>排名</th>
+                <th>视频封面</th>
+                <th>视频标题</th>
+                <th>UP主</th>
+                <th>播放量</th>
+                <th>弹幕数</th>
+                <th>点赞数</th>
+                <th>投币数</th>
+                <th>收藏数</th>
+                <th>发布时间</th>
+                <th>采集时间</th>
+            </tr>
+            {% for item in data %}
+            <tr>
+                <!-- 排名列：前三名特殊高亮 -->
+                <td class="rank {% if loop.index == 1 %}rank-top1{% elif loop.index == 2 %}rank-top2{% elif loop.index == 3 %}rank-top3{% endif %}">
+                    {{ loop.index }}
+                </td>
+
+                <!-- 封面图：hover放大效果 -->
+                <td>
+                    {% if item.cover_path and item.cover_path != "无封面" %}
+                    <img class="cover-img" src="{{ url_for('static', filename=item.cover_path.replace('static/', '').replace('static\\', '').replace('\\', '/')) }}" alt="封面">
+                    {% else %}
+                    <span style="color: #999;">暂无封面</span>
+                    {% endif %}
+                </td>
+
+                <!-- 视频标题：超长文本省略 -->
+                <td class="title-cell">{{ item.video_title }}</td>
+
+                <!-- UP主 -->
+                <td>{{ item.up_name }}</td>
+
+                <!-- 播放量：数字高亮 -->
+                <td class="play-count">{{ item.play_count }}</td>
+
+                <!-- 弹幕数 -->
+                <td>{{ item.danmu_count }}</td>
+
+                <!-- 点赞数 -->
+                <td>{{ item.like_count or '0' }}</td>
+
+                <!-- 投币数 -->
+                <td>{{ item.coin_count or '0' }}</td>
+
+                <!-- 收藏数 -->
+                <td>{{ item.favorite_count or '0' }}</td>
+
+                <!-- 发布时间 -->
+                <td>{{ item.publish_time }}</td>
+                <!-- 采集时间 -->
+                <td>{{ item.crawl_time }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- 返回首页按钮 -->
+    <div class="btn-container">
+        <a href="/" class="back-btn">← 返回首页</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+bilibili_videos_mp4/
+static/bilibili_video_covers/
+ffmpeg-master-latest-win64-gpl/
+Thumbs.db

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>B站热门视频数据平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            padding: 30px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            text-align: center;
+            color: #fb7299;
+            margin-bottom: 20px;
+        }
+        /* 按钮样式 */
+        .btn-wrap {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .top-btn {
+            display: inline-block;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #fb7299, #ff5c8d);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(251, 114, 153, 0.4);
+            transition: all 0.3s ease;
+        }
+        .top-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 114, 153, 0.6);
+        }
+        .video-btn {
+            display: inline-block;
+            padding: 10px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            margin-left: 15px;
+        }
+        .video-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        /* 搜索+排序区域 */
+        .search-box {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            padding: 8px 12px;
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .search-box select, .search-box button {
+            padding: 8px 12px;
+            margin: 0 5px;
+            border: 1px solid #fb7299;
+            background: #fff;
+            color: #fb7299;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-box button:hover {
+            background: #fb7299;
+            color: #fff;
+        }
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            box-shadow: 0 2px 8px #ccc;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #fb7299;
+            color: #fff;
+        }
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+        tr:hover {
+            background-color: #ffe6ef;
+        }
+        /* 封面图样式 */
+        .cover-img {
+            width: 120px;
+            height: 68px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px #ccc;
+        }
+        /* 标题截断 */
+        .title-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        /* 分页 */
+        .page-box {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .page-box a {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 0 4px;
+            border: 1px solid #fb7299;
+            color: #fb7299;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .page-box a:hover {
+            background-color: #fb7299;
+            color: #fff;
+        }
+        /* 图表区域 */
+        .chart-title {
+            text-align: center;
+            color: #333;
+            margin: 40px 0 20px;
+        }
+        .chart-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .chart-container img {
+            max-width: 90%;
+            box-shadow: 0 2px 10px #ccc;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>B站热门视频爬虫数据展示平台</h1>
+
+    <!-- 功能按钮区域 -->
+    <div class="btn-wrap">
+        <a href="/top10" class="top-btn">查看 Top10 榜单</a>
+        <a href="/videos" class="video-btn">📹 视频链接</a>
+    </div>
+
+    <!-- 搜索 + 排序 区域 -->
+    <div class="search-box">
+        <form action="/" method="get">
+            <input type="text" name="kw" placeholder="请输入标题/UP主名称搜索" value="{{ kw }}">
+            <select name="sort">
+                <option value="default" {% if sort == 'default' %}selected{% endif %}>默认排序</option>
+                <option value="play_desc" {% if sort == 'play_desc' %}selected{% endif %}>播放量降序</option>
+                <option value="danmu_desc" {% if sort == 'danmu_desc' %}selected{% endif %}>弹幕数降序</option>
+            </select>
+            <button type="submit">搜索 / 排序</button>
+        </form>
+    </div>
+
+    <!-- 数据表格 -->
+    <table>
+        <tr>
+            <th>视频封面</th>
+            <th>视频标题</th>
+            <th>UP主</th>
+            <th>播放量</th>
+            <th>弹幕数</th>
+            <th>点赞数</th>
+            <th>投币数</th>
+            <th>收藏数</th>
+            <th>发布时间</th>
+            <th>采集时间</th>
+        </tr>
+        {% for item in data %}
+        <tr>
+            <td>
+                {% if item.cover_path and item.cover_path != "无封面" %}
+                <img class="cover-img" src="{{ url_for('static', filename=item.cover_path.replace('static/', '').replace('static\\', '').replace('\\', '/')) }}" alt="封面">
+                {% else %}
+                <span>暂无封面</span>
+                {% endif %}
+            </td>
+            <td class="title-cell">{{ item.video_title }}</td>
+            <td>{{ item.up_name }}</td>
+            <td>{{ item.play_count }}</td>
+            <td>{{ item.danmu_count }}</td>
+            <td>{{ item.like_count or '0' }}</td>
+            <td>{{ item.coin_count or '0' }}</td>
+            <td>{{ item.favorite_count or '0' }}</td>
+            <td>{{ item.publish_time }}</td>
+            <td>{{ item.crawl_time }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- 分页 -->
+    <div class="page-box">
+        {% if page > 1 %}
+        <a href="{{ url_for('index', page=page-1, kw=kw, sort=sort) }}">上一页</a>
+        {% endif %}
+        <span>第 {{ page }} 页 / 共 {{ total_page }} 页</span>
+        {% if page < total_page %}
+        <a href="{{ url_for('index', page=page+1, kw=kw, sort=sort) }}">下一页</a>
+        {% endif %}
+    </div>
+
+    <!-- 统计图表 -->
+    <h2 class="chart-title">数据统计分析图表</h2>
+    <div class="chart-container">
+        <h3>播放量 TOP10</h3>
+        <img src="{{ url_for('static', filename='analysis_charts/播放量TOP10_优化版.png') }}" alt="播放量TOP10">
+    </div>
+    <div class="chart-container">
+        <h3>UP主投稿占比 TOP8</h3>
+        <img src="{{ url_for('static', filename='analysis_charts/UP主投稿占比_优化版.png') }}" alt="UP主占比">
+    </div>
+    <div class="chart-container">
+        <h3>播放量分布直方图</h3>
+        <img src="{{ url_for('static', filename='analysis_charts/播放量分布直方图_优化版.png') }}" alt="分布直方图">
+    </div>
+    <div class="chart-container">
+        <h3>播放量与弹幕数相关性散点图</h3>
+        <img src="{{ url_for('static', filename='analysis_charts/播放量弹幕数相关性散点图_优化版.png') }}" alt="散点图">
+    </div>
+    <div class="chart-container">
+        <h3>播放量箱线图（异常值检测）</h3>
+        <img src="{{ url_for('static', filename='analysis_charts/播放量箱线图_优化版.png') }}" alt="箱线图">
+    </div>
+
+</body>
+</html>

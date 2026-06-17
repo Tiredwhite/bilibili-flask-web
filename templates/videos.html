@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>B站视频列表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+        }
+
+        body {
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1 {
+            color: #fb7299;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        .page-desc {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .video-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .video-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(251, 114, 153, 0.2);
+        }
+
+        .video-thumbnail {
+            height: 180px;
+            background: linear-gradient(135deg, #fb7299 0%, #ff5c8d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+        }
+        .play-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .play-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 15px solid #fb7299;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            margin-left: 5px;
+        }
+        .video-card:hover .play-icon {
+            transform: scale(1.1);
+        }
+
+        .video-info {
+            padding: 15px;
+        }
+        .video-name {
+           font-weight: 600;
+           color: #333;
+           font-size: 15px;
+           line-height: 1.5;
+           height: 3em;
+           overflow: hidden;
+           position: relative;
+           margin-bottom: 10px;
+        }
+        .video-name::after {
+          content: "...";
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          padding-left: 40px;
+          background: linear-gradient(to right, transparent, #f5f5f5 60%);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .play-btn, .download-btn {
+            flex: 1;
+            padding: 10px;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .play-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        .play-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .download-btn {
+            background: linear-gradient(135deg, #fb7299, #ff5c8d);
+            box-shadow: 0 2px 8px rgba(251, 114, 153, 0.3);
+        }
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(251, 114, 153, 0.4);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 24px;
+            background-color: #fb7299;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-container {
+            text-align: center;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 85%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            width: 800px;
+        }
+        .modal-header {
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .close-btn {
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        #player-container {
+            width: 100%;
+            height: 450px;
+            position: relative;
+            background: #000;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* 提示信息 */
+        .hint-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        .hint-box p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <h1>📹 B站视频列表</h1>
+        <p class="page-desc">共 {{ videos|length }} 个视频文件 · MP4格式</p>
+    </div>
+
+    <!-- 提示信息 -->
+    <div class="hint-box">
+        <p><strong>💡 提示：</strong>MP4格式视频浏览器可直接播放，支持边加载边播放，体验更流畅。</p>
+    </div>
+
+    <div class="video-container">
+        {% for video in videos %}
+        <div class="video-card">
+            <div class="video-thumbnail" onclick="playVideo('{{ video.path }}', '{{ video.name }}')">
+                <div class="play-icon"></div>
+            </div>
+            <div class="video-info">
+                <div class="video-name">{{ video.name }}</div>
+                <div class="action-buttons">
+                    <button class="play-btn" onclick="playVideo('{{ video.path }}', '{{ video.name }}')">播放</button>
+                    <a href="{{ video.path }}" download class="download-btn">下载</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="btn-container">
+        <a href="/" class="back-btn">← 返回首页</a>
+    </div>
+
+    <!-- 视频播放器模态框 -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title" id="videoTitle">视频播放</span>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="player-container">
+                <video id="player" controls></video>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function playVideo(path, name) {
+            var modal = document.getElementById('videoModal');
+            var videoTitle = document.getElementById('videoTitle');
+            var player = document.getElementById('player');
+            
+            videoTitle.textContent = name;
+            player.src = path;
+            player.load();
+            
+            modal.style.display = 'flex';
+            
+            // 尝试自动播放
+            player.play().catch(function(e) {
+                console.log('自动播放被浏览器阻止，需要用户点击播放按钮');
+            });
+        }
+
+        function closeModal() {
+            var modal = document.getElementById('videoModal');
+            var player = document.getElementById('player');
+            
+            player.pause();
+            player.src = '';
+            
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('videoModal');
+            if (event.target == modal) {
+                closeModal();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                var modal = document.getElementById('videoModal');
+                if (modal.style.display === 'flex') {
+                    closeModal();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
